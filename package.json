@@ -1,0 +1,24 @@
+{
+  "name": "cobalt-skies",
+  "version": "1.0.0",
+  "description": "COBALT SKIES - National Level College Fest Management & Ticketing Platform",
+  "scripts": {
+    "start:backend": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "seed": "cd backend && npm run seed",
+    "test:e2e": "cd backend && node src/scripts/test-e2e.js"
+  },
+  "keywords": [
+    "college-fest",
+    "react",
+    "vite",
+    "express",
+    "mongodb",
+    "razorpay",
+    "tailwind"
+  ],
+  "author": "Cobalt Skies Engineering Council",
+  "license": "MIT"
+}
