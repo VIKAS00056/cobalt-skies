@@ -304,32 +304,57 @@ Expected Output:
 
 ---
 
-## 🌐 Production Deployment Guide
+## 🌐 Free Production Deployment Guide (Cloudflare Pages + Render)
 
-### 1. Database (MongoDB Atlas)
-1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-2. Whitelist your server IP address (or `0.0.0.0/0` for cloud deployment).
-3. Copy your connection string into `backend/.env`:
-   ```env
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/cobalt_skies?retryWrites=true&w=majority
-   ```
+### 1. Backend Deployment on Render (Free Web Service)
+1. Go to [Render Dashboard](https://dashboard.render.com/) and click **New + → Web Service**.
+2. Connect your GitHub/GitLab repository.
+3. Configure the following service settings:
+   - **Name**: `cobalt-skies-backend` (or your chosen name)
+   - **Root Directory**: `backend`
+   - **Environment**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node src/server.js`
+   - **Plan**: `Free`
+   - **Health Check Path**: `/health` (or `/` or `/api/health`)
+4. In the **Environment Variables** tab, add:
+   | Key | Value | Description |
+   |---|---|---|
+   | `NODE_ENV` | `production` | Production mode |
+   | `FRONTEND_URL` | `https://cobalt-skies.pages.dev` | Allowed Cloudflare Pages domain |
+   | `JWT_SECRET` | `cobalt_skies_jwt_secret_key_2026_super_secure_fest_platform` | JWT Signing Key |
+   | `ADMIN_EMAIL` | `admin@cobaltskies.com` | Chief admin account |
+   | `ADMIN_PASSWORD` | `AdminPassword@2026` | Chief admin password |
+   | `RAZORPAY_TEST_MODE` | `true` | Enforces safe test/demo mode |
+   | `RAZORPAY_KEY_ID` | `rzp_test_DEMO_KEY` | Demo test key |
+   | `RAZORPAY_KEY_SECRET` | `demo_key_secret_not_used_in_test_mode` | Demo key secret |
+   | `MONGODB_URI` | *(leave empty)* | Runs zero-cost embedded in-memory MongoDB without requiring Atlas or any paid database |
+5. Click **Create Web Service**. Once deployed, copy your service URL (e.g., `https://cobalt-skies-backend.onrender.com`).
 
-### 2. Backend Deployment (Render / Railway / AWS EC2)
-1. Set the root directory to `backend`.
-2. Build command: `npm install`
-3. Start command: `node src/server.js`
-4. Add all environment variables from `backend/.env`.
+---
 
-### 3. Frontend Deployment (Vercel / Netlify / Firebase Hosting)
-1. Build command: `npm run build`
-2. Output directory: `dist`
-3. Set environment variable:
-   ```env
-   VITE_API_URL=https://your-backend-domain.com/api
-   ```
-4. Configure SPA rewrite rules so client-side routing works smoothly:
-   - For Vercel: Add `vercel.json` with rewrite to `index.html`.
-   - For Netlify: Add `_redirects` file with `/* /index.html 200`.
+### 2. Frontend Deployment on Cloudflare Pages (Free Static/SPA)
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) and navigate to **Workers & Pages → Create application → Pages → Connect to Git**.
+2. Select your repository.
+3. Configure the project settings:
+   - **Project Name**: `cobalt-skies` (this assigns `https://cobalt-skies.pages.dev`)
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Build Output Directory**: `dist`
+4. In **Environment variables (Advanced)**, add:
+   | Variable name | Value |
+   |---|---|
+   | `VITE_API_URL` | `https://cobalt-skies-backend.onrender.com` (Your Render backend URL from Step 1) |
+   | `NODE_VERSION` | `20` |
+5. Click **Save and Deploy**.
+   - Cloudflare Pages will build the Vite app and automatically deploy with `_redirects` (`/* /index.html 200`) for seamless client-side SPA routing across all routes (`/events`, `/games`, `/login`, `/dashboard`, `/admin`).
+
+---
+
+### 3. Alternative Deployments (Vercel / Netlify)
+- **Vercel**: Set root directory to `frontend`, output directory to `dist`, and set `VITE_API_URL`. [`vercel.json`](file:///c:/Projects/5th%20Sem/Cobalt%20Skies/frontend/vercel.json) handles rewrites.
+- **Netlify**: Set base directory to `frontend`, publish directory to `frontend/dist`, and add `VITE_API_URL`. [`frontend/public/_redirects`](file:///c:/Projects/5th%20Sem/Cobalt%20Skies/frontend/public/_redirects) handles rewrites.
 
 ---
 

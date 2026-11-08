@@ -1,4 +1,23 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+/**
+ * Compute the base API URL dynamically from VITE_API_URL.
+ * Supports:
+ * - Empty / unset: defaults to '/api' (for local Vite proxy)
+ * - Absolute backend URL: e.g. 'https://cobalt-skies-backend.onrender.com' -> 'https://cobalt-skies-backend.onrender.com/api'
+ * - Absolute backend URL with /api: e.g. 'https://cobalt-skies-backend.onrender.com/api'
+ */
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || envUrl.trim() === '') {
+    return '/api';
+  }
+  const cleanUrl = envUrl.trim().replace(/\/+$/, '');
+  if (cleanUrl.endsWith('/api')) {
+    return cleanUrl;
+  }
+  return `${cleanUrl}/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Universal API request wrapper
@@ -19,7 +38,8 @@ export async function apiRequest(endpoint, { method = 'GET', data, headers = {} 
     config.body = JSON.stringify(data);
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const response = await fetch(url, config);
 
   // If response is a file download (like CSV)
